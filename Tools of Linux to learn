@@ -1,0 +1,143 @@
+helper sites:
+www.howtogeek.com
+www.nixcraft.com
+and of course stackoverflow 
+
+-- help # switch
+-- |grep # grep pipe
+
+ls --help |grep recursive
+
+cd
+cd ~  # home path
+ls
+ls -lah
+cat
+> operator
+< operator
+| operator
+grep
+less
+watch 
+watch -n 1 "command"
+tail
+tail -f
+clear
+echo
+
+rm  # careful
+sudo rm -rf foldername # very careful :) deletes everything in that folder
+
+
+sudo
+sudo -i
+apt-get  # install remove purge --no-install-recommends -y 
+gparted
+gdebi
+synaptic
+aptitude
+
+ssh
+ssh -Y 
+sshfs
+
+/etc/rc.local
+/etc/default/grub
+update-grub
+nano
+gedit
+/etc/apt/sources.list
+
+adduser
+deluser
+passwd
+chgrp
+chown
+chmod
+
+lsmod
+modprobe
+rmmod
+
+lspci
+lspci -nnk
+lspci -nnkvv
+
+lsblk
+
+hdparm
+iotop
+htop
+lmsensors
+
+gzip
+gunzip
+tar
+pigz
+zip
+rsync
+
+dd # !!! very very careful
+
+parted
+fdisk
+gdisk
+sgdisk
+mount
+umount
+du 
+dh
+file
+/etc/fstab
+
+ps
+ps -ef
+ps -A 
+lsof  # which process uses a file or library or soemthing
+
+
+cksum
+md5sum
+sha256sum
+md5deep
+find
+diff
+
+netstat -n
+tcpdump
+ifconfig 
+ifconfig -a
+ifconfig eth1 down
+route
+/etc/resolv.conf
+dig
+nslookup
+dhclient #auto internet config
+/etc/netplan/
+sysctl 
+ping 
+nmap
+wget
+curl
+ip
+ip neigh
+ip addr
+wondershaper
+trickle
+
+
+xrandr
+webmin 
+
+date
+time 
+
+history
+
+
+
+
+ 
+! some of them works only with sudo
+
+

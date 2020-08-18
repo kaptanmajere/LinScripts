@@ -1,0 +1,227 @@
+#!/bin/sh
+- Adjusting Webmin 
+	-User menus for progress and rocksolid (file manager and textlogin)
+
+- Adjusting Samba Server 
+	- Convert and sync user lists (or rewrite pass in samba users menu
+	- samba obeys unix file rules so mask it as root or everyone also uuid (there is acl workaround)
+	- Folder permissions persist, so it confuses things 
+	- dmraid -ay autodetect old raids ...
+	- add recyclebin vfs module
+	- bcache https://evilpiepirate.org/git/linux-bcache.git/tree/Documentation/bcache.txt
+	- busy error : http://carryflag.blogspot.com/2015/12/make-bcache-device-or-resource-busy.html
+
+- Adjusting bcache and mdadm # for advanced raid setups
+	-bcache https://evilpiepirate.org/git/linux-bcache.git/tree/Documentation/bcache.txt
+	-busy error : http://carryflag.blogspot.com/2015/12/make-bcache-device-or-resource-busy.html
+
+-Load Turkish keys
+	sudo loadkeys tr
+	sudo nano /etc/default/keyboard
+	change XKBLAYOUT to tr
+
+- Activate apt-get sources remove single #
+	sudo nano /etc/apt/sources.list 
+
+- Adjust server time :
+	sudo unlink /etc/localtime
+	sudo ln -s /usr/share/zoneinfo/Europe/Istanbul /etc/localtime
+
+- Quick Boot
+	/etc/default/grub change to:GRUB_CMDLINE_LINUX_DEFAULT="quiet splash" 
+	sudo update-grub
+
+
+- No Gui mode:
+	systemctl set-default multi-user.target	
+- Change Back to gui mode 
+	systemctl set-default graphical-user.target	
+	
+- Using X from terminal pty (command line)
+
+	sudo apt-get install firefox
+	sudo X :3 -ac 
+	DISPLAY=:3 xterm 
+	DISPLAY=:3 metacity 
+	sudo xrandr -s 
+	firefox --kiosk https://localhost:10000
+
+
+- User adjustment Examples
+	# Ubuntu has adduser instead of useradd it also cretes home folder, much more distro friendly.
+	sudo useradd progress
+	sudo passwd progress  #tcploggerprogress
+	sudo usermod -a -G sudo progress  #sudo,video,blabla ... username
+	exec bash	
+	usermod --shell /bin/bash progress # adjust bash 
+	sudo usermod -d $HOMEFOLDER progress #change homefolder
+	sudo mkdir /home/progress
+	. ./bashrc #or source .bashrc (you can copy from original gediz user)
+	sudo chown -R progress /home/progress
+	sudo chgrp -R progress /home/progress
+
+
+
+#### BACKUP and ALIKE #####
+
+### Compress and Backup ! use pigz instead of gzip if possible ### 
+dd if=/dev/sda2 status=progress | gzip -c -9> /somefolder/somefile.img.gz
+
+### Restore from Backup ###
+gunzip -c somefile.img.gz | dd iflag=fullblock bs=4M | sudo dd iflag=fullblock oflag=direct conv=fsync status=progress bs=4M of=/dev/mmcblk0
+
+### Cloning two disks (clones sdX to sdY - be careful)
+lsblk -o NAME,MODEL,UUID
+sudo dd if=/dev/sdX of=/dev/sdY bs=4M staus=progress 
+
+### Zero out empty space  ###
+sudo dd if=/dev/zero of=zerofile2.zero bs=100M count=1000 status=progress
+rm zerofile2.zero
+
+
+# Secure Erase Empty Space # (Preferably 3 times for Mechanical Disks) 
+# Use these against hackers if you dont want to recycle your hard drives other wise drill trough and burn them - They can get you passwords from your old disks.
+sudo dd if=/dev/urandom of=paddedFile.rand bs=100M count=1000 status=progress
+rm paddedFile.rand
+
+
+### Sync or Mirror Disks in Linux : (Deletes files which is not in source folder)
+sudo rsync  -Pra --delete -i --log-file=RsyncLog.txt /mnt/sdisk/ /mnt/tdisk
+!!! source does have a trailing / but dest does not ...
+
+### Sync or Mirror Disks in Windows: ### (Deletes files which is not in source folder)
+robocopy "SOURCE_DRIVE_LETTER:" "DESTINATION_DRIVE_LETTER:" /E /ZB /X /PURGE /COPYALL /TEE /LOG:D:\Copy_from_HD_to_Ext_HD.log /XD "$RECYCLE.BIN" "System Volume Information"
+
+### Os cloning file by file without binary disk cloning (Faster and Reliable) ###
+# Backup-Restore System(keep grub and etc/fstab or readjust uuids)	
+rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /* /path/to/backup/folder	
+
+### Compress folder using pigz 9th degree compression with 32 processor threads ### 
+tar cf - paths-to-archive | pigz -9 -p 32 > archive.tar.gz
+### with progress indjicator  ###
+tar cf - paths-to-archive | pv | pigz -9 -p 32  > archive.tar.gz
+
+# ! if you dont want to delete original file pigz -k 
+tar --use-compress-program="pigz -k |pv" -cf  '/run/user/1000/gvfs/smb-share:server=192.168.1.160,share=temp_server_d/JOBS/THY_SAFETY_INNOCEAN.tar.gz' THY_SAFETY_INNOCEAN
+
+# sync to ciff mounted samba server ! Careful target has no trailing slash (There is a permission issue we cant use -A here we expand it)
+rsync -PDrlt -i --log-file ~/Copylog.txt DaVinci/ /run/user/1000/gvfs/smb-share:server=192.168.1.160,share=temp_server_d/DAVTEST999
+
+#see total number of files
+find . -type f -print | wc -l
+
+#see file system info
+sudo tune2fs -l /dev/sda1 
+
+#get block size
+sudo tune2fs -l /dev/sda1 | grep Block
+
+#file size distribution in current folder
+find . -type f -print0 | xargs -0 ls -l | awk '{size[int(log($5)/log(2))]++}END{for (i in size) printf("%10d %3d\n", 2^i, size[i])}' | sort -n
+
+#average file size in current folder
+ls -lR | awk '{sum += $5; n++;} END {print sum/n;}'
+
+#compare two folders byte by byte (stays silent if file does not exists only shows what differs)
+diff -qr fodler1/ folder2/
+
+# see total folder size with subfolder
+du -sh 
+
+#see disk usage
+dh -u 
+
+#see disks detailed
+lsblk -o NAME,MAJ:MIN,RM,SIZE,TYPE,FSTYPE,MOUNTPOINT,UUID,PARTUUID
+
+#¢lear buffers !!!
+free && sync && echo 3 > /proc/sys/vm/drop_caches && free
+
+
+
+#auto connecd
+sudo dhclient
+
+#switch to root 
+sudo -i
+#adjust fanspeeds and read temps from sysfs 
+echo bla > sys/devices/bus...
+
+-But setting text mode resolution breaks xubuntu desktop because of nomodeset:
+GRUB: shift ctrl?+c vbeinfo nomodeset  GRUB_GFXPAYLOAD_LINUX=...
+
+
+
+# One Liners
+# Find and delete *.txt files (can use -delete instead of | xargs -0 rm)
+find . -name "*.txt" -print0 | xargs -0 rm									
+# change display density of android device
+adb shell wm density 240 
+#  watch cpu core speeds
+watch -n 1 "cat /proc/cpuinfo|grep MHz"
+# installs classic GNOME
+sudo apt-get install gnome-session-flashback 
+# create a new conda environment containing TensorFlow and activate it
+conda create -n tensorflow_env tensorflow & conda activate tensorflow_env
+# one time change to cpu scheduler in slow systems until boot   
+echo cfq | sudo tee /sys/class/block/sda/queue/scheduler
+# Fix interrupted installs - package manager - Kernel Module Failed to Load issues
+dpkg --configure -a
+# Backup Names of Installed Packages																	
+dpkg --get-selections | grep -v deinstall > ubuntu-files
+# Restore selected packages (do not forget to upgrade)					
+sudo dpkg --set-selections <./ubuntu-files apt-get -y update & apt-get dselect-upgrade	
+	
+# Find files with specific string
+grep -rnw '/path/to/somewhere/' -e 'text-to-search';		
+#  Download files and web pageswget https://raw.githubusercontent.com/blabla.gzip
+# Adjust gamma and brightness
+xrandr --output DVI-D-0 --brightness 1.1 --gamma 0.9:0.9:0.9
+
+# Adjust gamma and brightness - Movie mode ... Colder and more contrasted ...
+xrandr --output DVI-D-0 --brightness 1 --gamma 0.85:0.85:0.9
+
+# python3 create some test files :
+def createTestFiles(n,size):
+    for i in range(n):
+        runsys("sudo dd if=/dev/urandom of=test"+str(i)+".tst bs="+str(size)+" count=1 status=none")
+
+def copyTest(ext,folder):
+    runsys("sudo mkdir "+folder)
+    runsys("cp *."+ext+" "+folder)
+
+# bash version of it :
+size=128*1024    # bytes 
+sVerbose=progress # none or progress 
+for i in {1..100};do;sudo dd if=/dev/urandom of=test$i+.tst bs=$size count=1 status=$sVerbose;done
+
+# Show apparent file size (not based on disk cluster size) 
+du -s --apparent-size 
+
+
+
+# You can Benchmark your comp via 
+sudo -i
+dd bs=10M count=100 if=/dev/urandom of=test7498327498.39840928349 oflag=dsync 	# cpu test ...
+free && sync && echo 3 > /proc/sys/vm/drop_caches && free 			# clears caches 
+dd bs=10M count=100 if=test7498327498.39840928349 of=/dev/null 			# disk read test ...
+dd bs=4M count=32 if=/dev/zero of=/dev/null					# cpu test 
+dd bs=4M count=32 if=/dev/zero |md5sum						# another cpu test 
+glmark2										# gpu test
+mprime (mersenne prime)								# cpu mmx fft test (advanced cpu test)
+
+
+# lets see drivers in use
+sudo lspci -vvv | grep -E '[0-f][0-f]:[0-f][0-f].[0-f]|driver in use' --color none
+# lets see Link capacities and used link speeds of hardware 
+sudo lspci -vvv | grep -E '[0-f][0-f]:[0-f][0-f].[0-f]|LnkCtl|LnkSta|LnkCap'
+
+
+# dmidecode ve lspci dan hw info görebiliriz. pythonla daha rahat olur cihaz başına detayları ile ...
+
+# See cpu frequencies 
+watch -n 1 "cat /proc/cpuinfo |grep MHz"
+
+
+
+

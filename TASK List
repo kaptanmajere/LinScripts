@@ -1,6 +1,6 @@
 General and File server Studies :
 
--Benchmark disk using Disks utility and/or hparm 
+-Benchmark disk using Disks utility and/or hdparm 
 -Create urandom small files (0.25MB) via dd and time it using for loop in bash (manual benchmark)
 -Enter your alias to bashrc and activate it via source command
 -create mdadm raid0 array with additional 2 virtual disks each 512MB
@@ -10,7 +10,7 @@ General and File server Studies :
 -change VM ethernet adapter to Bridge mode instead of NAT and install samba-server and samba client share a folder from virtual linux to LAN
 -ping host computer only oncee 
 -change ip adresses using ifconfig change gateway using route command , change nameserver using /etc/resolv.conf
--Make these changes permenant entering commands /etc/rc.local (Starts with #!/bin/bash
+-Make these changes permenant entering commands /etc/rc.local (Starts with #!/bin/bash)
 -Remove /etc/rc.local net config lines and configure net suing netplan adjusting /etc/netplan/XXXX.yaml file, test using netplan --debug apply
 
 

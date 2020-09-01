@@ -227,5 +227,13 @@ sudo lspci -vvv | grep -E '[0-f][0-f]:[0-f][0-f].[0-f]|LnkCtl|LnkSta|LnkCap'
 watch -n 1 "cat /proc/cpuinfo |grep MHz"
 
 
+# LATEST FILE SERVER CIFFS COMMANDS
+nohup run.sh & # keep running after getting disconnected from ssh
+
+sudo apt-get install install cifs-utils 
+
+rsync -PDrlt --whole-file -i --log-file ~/CopylogSAHAM_FILLERS_Cont.txt SAHAM_FILLERS/ /run/user/1000/gvfs/smb-share:server=192.168.1.160,share=temp_server_e/SAHAM_FILLERS
+tar --use-compress-program="pigz -k |pv" -cf  '/run/user/1000/gvfs/smb-share:server=192.168.1.160,share=temp_server_e/JOBS/SAHAM_FILLERS.tar.gz' SAHAM_FILLERS
+pigz -dc target.tar.gz | tar xf -
 
 

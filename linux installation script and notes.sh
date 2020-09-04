@@ -48,18 +48,27 @@ sudo apt-get -y install gparted psensor
 
 sudo apt-get --no-install-recommends install xubuntu-desktop
 # apply scripts at https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-xfce-en/
-sudo apt install -y xrdp
+# xubuntu-desktopı çek ama recommend ettiği application ve kütüphaneleri çekme minumum installa 
+sudo apt install -y xrdp # xrdp yi yes diye sormadan installa
 sudo sed -e 's/^new_cursors=true/new_cursors=false/g' \
-           -i /etc/xrdp/xrdp.ini
+           -i /etc/xrdp/xrdp.ini # xrdpi ini dosyasında new_cursors ayarını disable et 
 sudo systemctl enable xrdp
 sudo systemctl restart xrdp
+# xrdp servisini yeniden başlat
+
 echo "xfce4-session" > ~/.xsession
+#xfce4 ü login sessionlar listesine ekle (xubuntu distrosunun nun dekstop ı çizen kısmı başlı başına bir desktop window manager)
 D=/usr/share/xfce4:/usr/share/xubuntu:/usr/local/share
 D=${D}:/usr/share:/var/lib/snapd/desktop:/usr/share
+#user folderları D de topla : ile ayır aynı PATH gibi 
+
 cat <<EOF > ~/.xsessionrc
+# EOF gelene kadar bunları cat' e yolla ekrana yazsın EOF gelince birikeni .xsessionrc ye yazsın 
 export XDG_SESSION_DESKTOP=xubuntu
 export XDG_DATA_DIRS=${D}
 export XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg:/etc/xdg
+# üstteki XDG ayarları desktop sessiondaki user folder ayarları
+
 EOF
 sudo cp /usr/bin/light-locker /usr/bin/light-locker.orig
 cat <<EOF | sudo tee /usr/bin/light-locker
@@ -72,6 +81,8 @@ else
   true
 fi
 EOF
+# üstteki gibi (EOF) XRDP kullanılırken light-locker yani ekran kilitlemeyi disable et 
+
 sudo chmod a+x /usr/bin/light-locker
 
 # ADDITIONAL INSTALLATIONS FOR DESKTOP VERSION
